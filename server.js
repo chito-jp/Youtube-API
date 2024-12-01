@@ -44,7 +44,8 @@ app.get("/api/:id",async(req,res)=>{
   const formatStreams=videoInfo.formatStreams || [];
   const streamUrl=changeUrl(formatStreams.reverse()[0].url);
       
-  res.json({streamUrl:streamUrl});
+  res.setHeader("Content-Type", "application/json");
+  res.status(200).send(JSON.stringify({ streamUrl: streamUrl }));
 });
 
 const getVideo=async id=>{
