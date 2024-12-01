@@ -20,16 +20,6 @@ const loadApis=()=>{
 
 const apis=loadApis();
 
-const changeUrl=(url)=>{
-  try {
-    const urlObj=new URL(url);
-    urlObj.searchParams.delete("host");
-    return urlObj.toString()
-  } catch (error) {
-    console.error(error);
-    return url;
-  }
-}
 app.get("/", async(req, res)=>{
   const response=await axios.get("https://raw.githubusercontent.com/mochidukiyukimi/yuki-youtube-instance/main/instance.txt")
   res.send(response.data);
@@ -42,7 +32,7 @@ app.get("/api/:id",async(req,res)=>{
   const id=req.params.id;
   const videoInfo=await getVideo(id);
   const formatStreams=videoInfo.formatStreams || [];
-  const streamUrl=changeUrl(formatStreams.reverse()[0].url);
+  const streamUrl=formatStreams.reverse()[0].url;
       
   res.setHeader("Content-Type", "application/json");
   res.status(200).send(JSON.stringify({ streamUrl: streamUrl }));
