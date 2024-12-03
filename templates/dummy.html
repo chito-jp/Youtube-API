@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TODOリスト</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .todo-container {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .todo-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .todo-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .todo-item.complete {
+      text-decoration: line-through;
+      color: #888;
+    }
+
+    .todo-item button {
+      background-color: #f44336;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .todo-item button:hover {
+      background-color: #d32f2f;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="todo-container">
+    <h1>TODOリスト</h1>
+    <input type="text" id="todo-input" placeholder="新しいタスクを入力..." />
+    <button id="add-btn">タスク追加</button>
+    <ul class="todo-list" id="todo-list"></ul>
+  </div>
+
+  <script>
+    // DOMの要素を取得
+    const todoInput = document.getElementById('todo-input');
+    const addBtn = document.getElementById('add-btn');
+    const todoList = document.getElementById('todo-list');
+
+    // タスクを追加する関数
+    function addTodo() {
+      const todoText = todoInput.value.trim();
+      
+      if (todoText !== '') {
+        const li = document.createElement('li');
+        li.classList.add('todo-item');
+        li.innerHTML = `
+          <span class="todo-text">${todoText}</span>
+          <button class="delete-btn">削除</button>
+        `;
+        
+        // 完了/未完了のトグル
+        li.querySelector('.todo-text').addEventListener('click', () => {
+          li.classList.toggle('complete');
+        });
+
+        // 削除ボタンの動作
+        li.querySelector('.delete-btn').addEventListener('click', () => {
+          li.remove();
+        });
+
+        // タスクをリストに追加
+        todoList.appendChild(li);
+        todoInput.value = '';  // 入力欄をリセット
+      }
+    }
+
+    // 「タスク追加」ボタンをクリックでタスク追加
+    addBtn.addEventListener('click', addTodo);
+
+    // Enterキーでもタスクを追加できるように
+    todoInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        addTodo();
+      }
+    });
+  </script>
+
+</body>
+</html>
