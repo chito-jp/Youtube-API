@@ -24,7 +24,7 @@ const loadApis=()=>{
 const apis=loadApis();
 
 app.get("/", async(req, res)=>{
-  res.sendFile(path.join(__dirname, "site.html"));
+  res.sendFile(path.join(__dirname, "public", "site.html"));
 });
 
 const MAX_API_WAIT_TIME=5000; 
