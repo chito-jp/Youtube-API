@@ -1,8 +1,11 @@
 const express=require("express");
 const axios=require("axios");
 const fs = require("fs");
+const path = require('path');
 
 const app=express();
+
+app.use(express.static(path.join(__dirname, "public")));
 
 //apiリストをjsonファイルに書き込む
 const saveApis=(data)=>{
@@ -21,8 +24,7 @@ const loadApis=()=>{
 const apis=loadApis();
 
 app.get("/", async(req, res)=>{
-  const response=await axios.get("https://raw.githubusercontent.com/mochidukiyukimi/yuki-youtube-instance/main/instance.txt")
-  res.send(response.data);
+  res.sendFile(path.join(__dirname, "site.html"));
 });
 
 const MAX_API_WAIT_TIME=5000; 
