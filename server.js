@@ -51,7 +51,6 @@ const getVideo=async id=>{
           apis.splice(index, 1);
         }
         apis.unshift(api);
-        console.log(apis);
         saveApis(apis);
         return response.data; 
       } else {
