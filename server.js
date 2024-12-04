@@ -30,16 +30,6 @@ app.get("/", async(req, res)=>{
 const MAX_API_WAIT_TIME=5000; 
 const MAX_TIME=10000;
 
-app.get("/api/:id",async(req,res)=>{
-  const id=req.params.id;
-  const videoInfo=await getVideo(id);
-  const formatStreams=videoInfo.formatStreams || [];
-  const streamUrl=formatStreams.reverse()[0].url;
-      
-  res.setHeader("Content-Type", "application/json");
-  res.status(200).send(JSON.stringify({ streamUrl: streamUrl }));
-});
-
 const getVideo=async id=>{
   for(const api of apis){
     try{
@@ -62,6 +52,41 @@ const getVideo=async id=>{
   }
   return "動画が取得できません";
 };
+
+
+app.get("/api/watch/:id",async(req,res)=>{
+  const id=req.params.id;
+  const videoInfo=await getVideo(id);
+  const formatStreams=videoInfo.formatStreams || [];
+  const streamUrl=formatStreams.reverse()[0].url;
+
+  res.redirect(301, streamUrl);//取得したストリームURLにリダイレクトする
+});
+
+app.get("/api/suggest/:keyword",async(req,res)=>{
+  const keyword=req.params.keyword;
+  try{
+    const response=await axios.get(`https://www.google.com/complete/search?client=youtube&hl=ja&ds=yt&q=${encodeURIComponent(keyword)}`,{
+      headers: {
+          "User-Agent": "Mozilla/5.0"
+      }
+    });
+    const jsonString = response.data.substring(response.data.indexOf("["), response.data.lastIndexOf("]") + 1);
+    try{
+      const suggestionsArray = JSON.parse(jsonString);
+      const suggestions = suggestionsArray[1].map(i => i[0]);
+      
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      res.json(suggestions);
+    }catch(e){
+      console.error("JSONパースエラー",e);
+      res.status(500).send("JSONパースエラー",e);
+    }
+  }catch(e){
+    console.error("リクエストエラー",e);
+    res.status(500).send("リクエストエラー",e);
+  }
+});
 
 const PORT=process.env.PORT || 3000;
 const listener=app.listen(PORT,()=>{
