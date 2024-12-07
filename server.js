@@ -23,6 +23,17 @@ const loadApis=()=>{
 
 const apis=loadApis();
 
+const changeUrl=(url)=>{
+  try {
+    const urlObj=new URL(url);
+    urlObj.searchParams.delete("host");
+    return urlObj.toString()
+  } catch (error) {
+    console.error(error);
+    return url;
+  }
+}
+
 app.get("/", async(req, res)=>{
   res.sendFile(path.join(__dirname, "public", "site.html"));
 });
@@ -58,7 +69,7 @@ app.get("/api/video/:id",async(req,res)=>{
   const id=req.params.id;
   const videoInfo=await getVideo(id);
   const formatStreams=videoInfo.formatStreams || [];
-  const streamUrl=formatStreams.reverse()[0].url;
+  const streamUrl=changeUrl(formatStreams.reverse()[0].url);
 
   res.setHeader("Content-Type", "application/json");
   res.status(200).send(JSON.stringify({ streamUrl: streamUrl }));
