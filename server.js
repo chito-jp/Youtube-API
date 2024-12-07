@@ -54,7 +54,7 @@ const getVideo=async id=>{
 };
 
 
-app.get("/api/watch/:id",async(req,res)=>{
+app.get("/api/video/:id",async(req,res)=>{
   const id=req.params.id;
   const videoInfo=await getVideo(id);
   const formatStreams=videoInfo.formatStreams || [];
@@ -64,6 +64,14 @@ app.get("/api/watch/:id",async(req,res)=>{
   res.status(200).send(JSON.stringify({ streamUrl: streamUrl }));
 });
 
+app.get("/api/watch/:id",async(req,res)=>{
+  const id=req.params.id;
+  const videoInfo=await getVideo(id);
+  const formatStreams=videoInfo.formatStreams || [];
+  const streamUrl=formatStreams.reverse()[0].url;
+
+  res.redirect(301, streamUrl);
+});
 
 app.get("/api/suggest/:keyword",async(req,res)=>{
   const keyword=req.params.keyword;
