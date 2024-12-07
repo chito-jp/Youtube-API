@@ -60,8 +60,10 @@ app.get("/api/watch/:id",async(req,res)=>{
   const formatStreams=videoInfo.formatStreams || [];
   const streamUrl=formatStreams.reverse()[0].url;
 
-  res.redirect(301, streamUrl);//取得したストリームURLにリダイレクトする
+  res.setHeader("Content-Type", "application/json");
+  res.status(200).send(JSON.stringify({ streamUrl: streamUrl }));
 });
+
 
 app.get("/api/suggest/:keyword",async(req,res)=>{
   const keyword=req.params.keyword;
