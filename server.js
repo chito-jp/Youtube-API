@@ -1,11 +1,10 @@
 const express=require("express");
 const axios=require("axios");
 const fs = require("fs");
-const path = require('path');
+const cors = require("cors");
 
 const app=express();
-
-app.use(express.static(path.join(__dirname, "public")));
+app.use(cors());
 
 //apiリストをjsonファイルに書き込む
 const saveApis=(data)=>{
@@ -23,23 +22,34 @@ const loadApis=()=>{
 
 const apis=loadApis();
 
-const changeUrl=(url)=>{
-  try {
-    const urlObj=new URL(url);
-    urlObj.searchParams.delete("host");
-    return urlObj.toString()
-  } catch (error) {
-    console.error(error);
-    return url;
-  }
-}
-
 app.get("/", async(req, res)=>{
-  res.sendFile(path.join(__dirname, "public", "site.html"));
+  const response=await axios.get("https://raw.githubusercontent.com/mochidukiyukimi/yuki-youtube-instance/main/instance.txt")
+  res.send(response.data);
 });
 
 const MAX_API_WAIT_TIME=5000; 
 const MAX_TIME=10000;
+
+app.get("/api/watch/:id",async(req,res)=>{
+  const id=req.params.id;
+  const videoInfo=await getVideo(id);
+  const formatStreams=videoInfo.formatStreams || [];
+  const streamUrl=formatStreams.reverse()[0].url;
+
+  res.redirect(301, streamUrl);
+});
+
+app.get("/api/video/:id",async(req,res)=>{
+  const id=req.params.id;
+  const videoInfo=await getVideo(id);
+  const formatStreams=videoInfo.formatStreams || [];
+  const streamUrl=formatStreams.reverse()[0].url;
+      
+  res.setHeader("Content-Type", "application/json");
+  res.status(200).send(JSON.stringify({ streamUrl: streamUrl }));
+});
+
+
 
 const getVideo=async id=>{
   for(const api of apis){
@@ -52,6 +62,7 @@ const getVideo=async id=>{
           apis.splice(index, 1);
         }
         apis.unshift(api);
+        console.log(apis);
         saveApis(apis);
         return response.data; 
       } else {
@@ -63,26 +74,6 @@ const getVideo=async id=>{
   }
   return "動画が取得できません";
 };
-
-
-app.get("/api/video/:id",async(req,res)=>{
-  const id=req.params.id;
-  const videoInfo=await getVideo(id);
-  const formatStreams=videoInfo.formatStreams || [];
-  const streamUrl=changeUrl(formatStreams.reverse()[0].url);
-
-  res.setHeader("Content-Type", "application/json");
-  res.status(200).send(JSON.stringify({ streamUrl: streamUrl }));
-});
-
-app.get("/api/watch/:id",async(req,res)=>{
-  const id=req.params.id;
-  const videoInfo=await getVideo(id);
-  const formatStreams=videoInfo.formatStreams || [];
-  const streamUrl=formatStreams.reverse()[0].url;
-
-  res.redirect(301, streamUrl);
-});
 
 app.get("/api/suggest/:keyword",async(req,res)=>{
   const keyword=req.params.keyword;
@@ -107,6 +98,10 @@ app.get("/api/suggest/:keyword",async(req,res)=>{
     console.error("リクエストエラー",e);
     res.status(500).send("リクエストエラー",e);
   }
+});
+
+app.get("/api/search",(req,res)=>{
+  const {search_query}=req.query;
 });
 
 const PORT=process.env.PORT || 3000;
