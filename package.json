@@ -1,13 +1,14 @@
 {
-  "name": "getYoutubeVideo",
+  "name": "Youtube-API",
   "version": "1.00",
   "main": "server.js",
   "license": "CC-BY-4.0",
   "dependencies": {
     "express": "^4.17.1",
-    "axios": "^1.7.8"
+    "axios": "^1.7.8",
+    "cors": "^2.8.5"
   },
-  "description": "InvidiousのAPIを利用し、YoutubeのストリームURLを取得するためのAPI",
+  "description": "InvidiousのAPIを利用し、動画のストリームURLを取得する",
   "engines": {
     "node": "16.x"
   },
