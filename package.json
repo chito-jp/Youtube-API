@@ -1,5 +1,5 @@
 {
-  "name": "Youtube-API",
+  "name": "chito-API",
   "version": "1.00",
   "main": "server.js",
   "license": "CC-BY-4.0",
@@ -8,7 +8,7 @@
     "axios": "^1.7.8",
     "cors": "^2.8.5"
   },
-  "description": "InvidiousのAPIを利用し、動画のストリームURLを取得する",
+  "description": "API",
   "engines": {
     "node": "16.x"
   },
