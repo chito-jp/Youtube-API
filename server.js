@@ -1,13 +1,10 @@
 const express=require("express");
 const axios=require("axios");
 const fs = require("fs");
-const path = require('path');
 const cors = require("cors");
 
 const app=express();
-
 app.use(cors());
-app.use(express.static(path.join(__dirname, "public")));
 
 //apiリストをjsonファイルに書き込む
 const saveApis=(data)=>{
@@ -26,7 +23,8 @@ const loadApis=()=>{
 const apis=loadApis();
 
 app.get("/", async(req, res)=>{
-  res.sendFile(path.join(__dirname, "public", "site.html"));
+  const response=await axios.get("https://raw.githubusercontent.com/mochidukiyukimi/yuki-youtube-instance/main/instance.txt")
+  res.send(response.data);
 });
 
 const MAX_API_WAIT_TIME=5000; 
@@ -76,35 +74,6 @@ const getVideo=async id=>{
   }
   return "動画が取得できません";
 };
-
-app.get("/api/suggest/:keyword",async(req,res)=>{
-  const keyword=req.params.keyword;
-  try{
-    const response=await axios.get(`https://www.google.com/complete/search?client=youtube&hl=ja&ds=yt&q=${encodeURIComponent(keyword)}`,{
-      headers: {
-          "User-Agent": "Mozilla/5.0"
-      }
-    });
-    const jsonString = response.data.substring(response.data.indexOf("["), response.data.lastIndexOf("]") + 1);
-    try{
-      const suggestionsArray = JSON.parse(jsonString);
-      const suggestions = suggestionsArray[1].map(i => i[0]);
-      
-      res.setHeader("Content-Type", "application/json; charset=utf-8");
-      res.json(suggestions);
-    }catch(e){
-      console.error("JSONパースエラー",e);
-      res.status(500).send("JSONパースエラー",e);
-    }
-  }catch(e){
-    console.error("リクエストエラー",e);
-    res.status(500).send("リクエストエラー",e);
-  }
-});
-
-app.get("/api/search",(req,res)=>{
-  const {search_query}=req.query;
-});
 
 const PORT=process.env.PORT || 3000;
 const listener=app.listen(PORT,()=>{
