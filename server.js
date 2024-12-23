@@ -30,6 +30,28 @@ app.get("/", async(req, res)=>{
 const MAX_API_WAIT_TIME=5000; 
 const MAX_TIME=10000;
 
+const getVideo=async id=>{
+  for(const api of apis){
+    try{
+      const response=await axios.get(`${api}/api/v1/videos/${id}`, { timeout: MAX_API_WAIT_TIME });
+      if (response.data && response.data.formatStreams) {
+        console.log(`成功URL${api}`);
+        const index = apis.indexOf(api);
+        if (index !== -1) {
+          apis.splice(index, 1);
+        }
+        apis.unshift(api);
+        return response.data; 
+      } else {
+        console.error(`formatStreamsが存在しません: ${api}`);
+      }
+    }catch(e){
+      console.error(`動画が取得できませんでした : ${api}`);
+    }
+  }
+  return "動画が取得できません";
+};
+
 app.get("/api/watch/:id",async(req,res)=>{
   const id=req.params.id;
   const videoInfo=await getVideo(id);
@@ -49,31 +71,9 @@ app.get("/api/video/:id",async(req,res)=>{
   res.status(200).send(JSON.stringify({ streamUrl: streamUrl }));
 });
 
-
-
-const getVideo=async id=>{
-  for(const api of apis){
-    try{
-      const response=await axios.get(`${api}/api/v1/videos/${id}`, { timeout: MAX_API_WAIT_TIME });
-      if (response.data && response.data.formatStreams) {
-        console.log(`成功URL${api}`);
-        const index = apis.indexOf(api);
-        if (index !== -1) {
-          apis.splice(index, 1);
-        }
-        apis.unshift(api);
-        console.log(apis);
-        saveApis(apis);
-        return response.data; 
-      } else {
-        console.error(`formatStreamsが存在しません: ${api}`);
-      }
-    }catch(e){
-      console.error(`動画が取得できませんでした : ${api}`);
-    }
-  }
-  return "動画が取得できません";
-};
+app.get("/apis",(req,res)=>{
+  res.send(apis);
+});
 
 const PORT=process.env.PORT || 3000;
 const listener=app.listen(PORT,()=>{
