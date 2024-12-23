@@ -45,7 +45,7 @@ const getVideo=async id=>{
         console.log(`成功URL${api}`);
         apis.splice(apis.indexOf(api), 1);
         apis.unshift(api);
-        return response; 
+        return response;
       } else {
         console.error(`formatStreamsが存在しません: ${api}`);
       }
@@ -63,11 +63,11 @@ app.get("/", async(req, res)=>{
 app.get("/api/video/:id",async(req,res)=>{
   const id=req.params.id;
   const videoInfo=await getVideo(id);
+  const {title,videoId}=response;
   const formatStreams=videoInfo.formatStreams || [];
   const streamUrl=formatStreams.reverse()[0].url;
-      
   res.setHeader("Content-Type", "application/json");
-  res.status(200).send(JSON.stringify({ streamUrl: streamUrl }));
+  res.status(200).send({title,videoId,streamUrl});
 });
 
 app.get("/api/raw/video/:id",async(req,res)=>{
