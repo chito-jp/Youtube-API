@@ -29,7 +29,7 @@ const requestApi=async(apiList,reqPath)=>{
   for(const api of apiList){
     try{
       const {data:response}=await axios.get(`${api}${reqPath}`,{ timeout: MAX_API_WAIT_TIME });
-      console.log("成功API : ${api}");
+      console.log(`成功API : ${api}`);
     }catch(e){
       console.error(`失敗API : ${api}`);
     }
@@ -43,10 +43,7 @@ const getVideo=async id=>{
       const {data:response}=await axios.get(`${api}/api/v1/videos/${id}`, { timeout: MAX_API_WAIT_TIME });
       if (response && response.formatStreams) {
         console.log(`成功URL${api}`);
-        const index = apis.indexOf(api);
-        if (index !== -1) {
-          apis.splice(index, 1);
-        }
+        apis.splice(apis.indexOf(api), 1);
         apis.unshift(api);
         return response; 
       } else {
@@ -75,7 +72,7 @@ app.get("/api/video/:id",async(req,res)=>{
 
 app.get("/api/raw/video/:id",async(req,res)=>{
   const id=req.params.id;
-  res.send(await getVideo(id););
+  res.send(await getVideo(id));
 });
 
 app.get("/api/watch/:id",async(req,res)=>{
