@@ -22,26 +22,33 @@ const loadApis=()=>{
 
 const apis=loadApis();
 
-app.get("/", async(req, res)=>{
-  const response=await axios.get("https://raw.githubusercontent.com/mochidukiyukimi/yuki-youtube-instance/main/instance.txt")
-  res.send(response.data);
-});
-
 const MAX_API_WAIT_TIME=5000; 
-const MAX_TIME=10000;
+
+//APIのリストを受け取り、それに対してリクエストを送る
+const requestApi=async(apiList,reqPath)=>{
+  for(const api of apiList){
+    try{
+      const {data:response}=await axios.get(`${api}${reqPath}`,{ timeout: MAX_API_WAIT_TIME });
+      console.log("成功API : ${api}");
+    }catch(e){
+      console.error(`失敗API : ${api}`);
+    }
+  }
+  console.error("すべてのAPIでの取得に失敗しました");
+};
 
 const getVideo=async id=>{
   for(const api of apis){
     try{
-      const response=await axios.get(`${api}/api/v1/videos/${id}`, { timeout: MAX_API_WAIT_TIME });
-      if (response.data && response.data.formatStreams) {
+      const {data:response}=await axios.get(`${api}/api/v1/videos/${id}`, { timeout: MAX_API_WAIT_TIME });
+      if (response && response.formatStreams) {
         console.log(`成功URL${api}`);
         const index = apis.indexOf(api);
         if (index !== -1) {
           apis.splice(index, 1);
         }
         apis.unshift(api);
-        return response.data; 
+        return response; 
       } else {
         console.error(`formatStreamsが存在しません: ${api}`);
       }
@@ -52,13 +59,8 @@ const getVideo=async id=>{
   return "動画が取得できません";
 };
 
-app.get("/api/watch/:id",async(req,res)=>{
-  const id=req.params.id;
-  const videoInfo=await getVideo(id);
-  const formatStreams=videoInfo.formatStreams || [];
-  const streamUrl=formatStreams.reverse()[0].url;
-
-  res.redirect(301, streamUrl);
+app.get("/", async(req, res)=>{
+  res.send("Server is running");
 });
 
 app.get("/api/video/:id",async(req,res)=>{
@@ -69,6 +71,20 @@ app.get("/api/video/:id",async(req,res)=>{
       
   res.setHeader("Content-Type", "application/json");
   res.status(200).send(JSON.stringify({ streamUrl: streamUrl }));
+});
+
+app.get("/api/raw/video/:id",async(req,res)=>{
+  const id=req.params.id;
+  res.send(await getVideo(id););
+});
+
+app.get("/api/watch/:id",async(req,res)=>{
+  const id=req.params.id;
+  const videoInfo=await getVideo(id);
+  const formatStreams=videoInfo.formatStreams || [];
+  const streamUrl=formatStreams.reverse()[0].url;
+
+  res.redirect(301, streamUrl);
 });
 
 app.get("/apis",(req,res)=>{
