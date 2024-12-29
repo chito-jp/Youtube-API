@@ -88,6 +88,22 @@ app.get("/apis",(req,res)=>{
   res.send(apis);
 });
 
+app.get("/cors",async(req,res)=>{
+  const options={
+      method:req.method,
+      url:req.query.url,
+      headers:{...req.headers,host:undefined},
+      data:["POST","PUT","PATCH"].includes(req.method)? req.body: null
+  };
+  try {
+    const response = await axios(options);
+    res.status(response.status).send(response.data);
+  } catch (error) {
+    console.error("Error during proxy request:", error.message);
+    res.status(500).json({ error: "リクエストの転送中にエラーが発生しました。" });
+  }
+});
+
 const PORT=process.env.PORT || 3000;
 const listener=app.listen(PORT,()=>{
   console.log(`Server is running on http://localhost:${listener.address().port}`);
